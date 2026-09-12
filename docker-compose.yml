@@ -1,0 +1,48 @@
+version: "3.9"
+services:
+  fl-server:
+    build: .
+    container_name: fedmed-server
+    command: python server/fl_server.py
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - fedmed-network
+  hospital-node-1:
+    build: .
+    container_name: fedmed-hospital-1
+    command: python client/fl_client.py --hospital-id 1 --server fl-server:8080
+    volumes:
+      - ./data/raw:/app/data/raw:ro
+      - ./logs:/app/logs
+    depends_on:
+      - fl-server
+    networks:
+      - fedmed-network
+  hospital-node-2:
+    build: .
+    container_name: fedmed-hospital-2
+    command: python client/fl_client.py --hospital-id 2 --server fl-server:8080
+    volumes:
+      - ./data/raw:/app/data/raw:ro
+      - ./logs:/app/logs
+    depends_on:
+      - fl-server
+    networks:
+      - fedmed-network
+  hospital-node-3:
+    build: .
+    container_name: fedmed-hospital-3
+    command: python client/fl_client.py --hospital-id 3 --server fl-server:8080
+    volumes:
+      - ./data/raw:/app/data/raw:ro
+      - ./logs:/app/logs
+    depends_on:
+      - fl-server
+    networks:
+      - fedmed-network
+networks:
+  fedmed-network:
+    driver: bridge
